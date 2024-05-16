@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\Users;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class AuthController extends Controller
 {
@@ -15,12 +17,6 @@ class AuthController extends Controller
     public function __construct(Users $user)
     {
         $this->user = $user;
-    }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
     }
 
     /**
@@ -42,7 +38,7 @@ class AuthController extends Controller
             if ($validateUser->fails()) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'validation error',
+                    'message' => 'validation error register',
                     'errors' => $validateUser->errors()
                 ], 401);
             }
@@ -69,7 +65,7 @@ class AuthController extends Controller
     /**
      * Display the specified resource.
      */
-    public function loginUser(Request $request)
+    public function login(Request $request)
     {
         try {
             $validateUser = Validator::make(
@@ -82,7 +78,7 @@ class AuthController extends Controller
             if ($validateUser->fails()) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'validation error',
+                    'message' => 'validation error login',
                     'errors' => $validateUser->errors()
                 ], 401);
             }
@@ -96,8 +92,9 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => true,
+                'data' => $user,
                 'message' => 'User Logged In Successfully',
-                'token' => $user->createToken("API_TOKEN")->plainTextToken
+                'token' => $user->createToken("API TOKEN")->plainTextToken
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -107,6 +104,21 @@ class AuthController extends Controller
         }
     }
 
+    function logoutUser()
+    {
+
+        // Lấy token hiện tại của người dùng
+        $user = Auth::user();
+
+        // Xóa tất cả các token của người dùng hiện tại
+        // Xóa tất cả các token của người dùng hiện tại
+        $user->each->delete();
+        dd($user);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User is logged out successfully'
+        ], 200);
+    }
     /**
      * Show the form for editing the specified resource.
      */
